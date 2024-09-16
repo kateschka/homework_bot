@@ -33,7 +33,7 @@ logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     filename='bot.log',
-    filemode='a',
+    filemode='w',
     encoding='utf-8'
 )
 handler = logging.StreamHandler(sys.stdout)
@@ -70,6 +70,9 @@ def send_message(bot, message):
 
 def get_api_answer(timestamp):
     """Get the API response and parse it to python data types."""
+    logger.info(
+        f'Попытка запроса данных с {ENDPOINT} '
+        f'с параметром from_date = {timestamp}')
     try:
         response = requests.get(
             ENDPOINT, headers=HEADERS, params={'from_date': timestamp})
@@ -84,16 +87,18 @@ def get_api_answer(timestamp):
 
     try:
         response = response.json()
+        logger.info('Ответ на запрос к API получен')
+        return response
     except Exception:
         error_message = 'Ошибка преобразования ответа API в JSON'
         logger.error(error_message)
         raise TypeError(error_message)
 
-    return response
-
 
 def check_response(response):
     """Check the API response."""
+    logger.info('Проверка ответа API')
+
     # if response is not a dictionary
     if not isinstance(response, dict):
         error_message = 'Ответ API не является словарем'
@@ -102,6 +107,7 @@ def check_response(response):
 
     # if the response does not contain the key 'homeworks'
     homeworks = response.get('homeworks')
+
     if not isinstance(homeworks, list):
         error_message = 'Ответ API не содержит списка работ'
         logger.error(error_message)
@@ -116,6 +122,8 @@ def check_response(response):
 
 def parse_status(homework):
     """Parse the response and get verdict if homework status changed."""
+    logger.info('Есть изменения в статусе работы. Проверка статусов')
+
     homework_name = homework.get('homework_name')
     status = homework.get('status')
 
@@ -142,6 +150,7 @@ def parse_status(homework):
 def main():
     """Main logic of the bot."""
     bot = TeleBot(TELEGRAM_TOKEN)
+    logger.info('Бот начал свою работу')
     timestamp = int(time.time())
 
     try:
