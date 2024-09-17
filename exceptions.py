@@ -4,4 +4,6 @@
 class NoneTokenError(Exception):
     """Raised when the token is not set."""
 
-    pass
+
+class RequestError(Exception):
+    """Raised when the request to the API failed."""
