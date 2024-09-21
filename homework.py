@@ -59,9 +59,8 @@ def send_message(bot, message):
         logging.debug(f'Бот отправил сообщение: \'{message}\'')
 
     except Exception:
-        error_message = (f'Ошибка отправки сообщения \'{message}\', '
-                         f'Chat ID: {TELEGRAM_CHAT_ID}')
-        logging.error(error_message)
+        logging.error(f'Ошибка отправки сообщения \'{message}\', '
+                      f'Chat ID: {TELEGRAM_CHAT_ID}')
 
 
 def get_api_answer(timestamp):
@@ -85,8 +84,7 @@ def get_api_answer(timestamp):
             return response
 
         except Exception:
-            error_message = 'Ошибка преобразования ответа API в JSON'
-            raise ValueError(error_message)
+            raise ValueError('Ошибка преобразования ответа API в JSON')
 
     except requests.RequestException as error:
         logging.error(f'Ошибка запроса к {ENDPOINT}: {error}')
@@ -98,18 +96,15 @@ def check_response(response):
 
     # if response is not a dictionary
     if not isinstance(response, dict):
-        error_message = 'Ответ API не является словарем'
-        raise TypeError(error_message)
+        raise TypeError('Ответ API не является словарем')
 
     # if the response does not contain the key 'homeworks'
     if 'homeworks' not in response:
-        error_message = 'Ответ API не содержит ключа \'homeworks\''
-        raise KeyError(error_message)
+        raise KeyError('Ответ API не содержит ключа \'homeworks\'')
 
-    homeworks = response.get('homeworks')
+    homeworks = response['homeworks']
     if not isinstance(homeworks, list):
-        error_message = 'Ответ API не содержит списка работ'
-        raise TypeError(error_message)
+        raise TypeError('Ответ API не содержит списка работ')
 
     # if homeworks is empty
     if not homeworks:
@@ -136,14 +131,13 @@ def parse_status(homework):
         )
         raise KeyError(error_message)
 
-    homework_name = homework.get('homework_name')
-    status = homework.get('status')
+    homework_name = homework['homework_name']
+    status = homework['status']
 
     if status not in HOMEWORK_VERDICTS:
-        error_message = f'Статус проверки работы "{homework_name}" неизвестен'
-        raise KeyError(error_message)
+        raise KeyError(f'Статус проверки работы "{homework_name}" неизвестен')
 
-    verdict = HOMEWORK_VERDICTS.get(status)
+    verdict = HOMEWORK_VERDICTS[status]
 
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
